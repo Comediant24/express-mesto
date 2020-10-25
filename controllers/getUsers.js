@@ -1,29 +1,34 @@
-const path = require('path');
-const readFile = require('../utils/read-file');
+const User = require('../models/user');
 
-const pathToUsers = path.join(__dirname, '..', 'data', 'users.json');
-
-const getUsers = (req, res) => {
-  readFile(pathToUsers)
-    .then((users) => res.send(users))
-    .catch((err) => {
-      res.status(500).send({ message: `Произошла ошибка: ${err}` });
-    });
+const getUsers = async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.status(200).send(users);
+  } catch (error) {
+    res.status(500).send({ message: `Произошла ошибка: ${error}` });
+  }
 };
 
-const getUserById = (req, res) => {
-  readFile(pathToUsers)
-    .then((users) => {
-      const currentUser = users.find((user) => user._id === req.params.id);
-      if (!currentUser) {
-        res.status(404).send({ message: 'Нет пользователя с таким id' });
-        return;
-      }
-      res.send(currentUser);
-    })
-    .catch((err) => {
-      res.status(500).send({ message: `Произошла ошибка: ${err}` });
-    });
+const getUserById = async (req, res) => {
+  try {
+    const user = User.findById({ id: req.params.id });
+    if (!user) {
+      return res.status(404).send({ message: 'Нет пользователя с таким id' });
+    }
+    return res.status(200).send(user);
+  } catch (error) {
+    res.status(500).send({ message: `Произошла ошибка: ${error}` });
+  }
 };
 
-module.exports = { getUsers, getUserById };
+const createUser = async (req, res) => {
+  const { name, about, avatar } = req.body;
+  try {
+    const newUser = User.create({ name, about, avatar });
+    res.status(200).send(newUser);
+  } catch (error) {
+    res.status(500).send({ message: `Произошла ошибка: ${error}` });
+  }
+};
+
+module.exports = { getUsers, getUserById, createUser };
