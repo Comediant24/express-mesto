@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const { ObjectId } = require('mongodb');
 
 const cardSchema = new Schema({
   name: {
@@ -22,7 +23,7 @@ const cardSchema = new Schema({
     required: true,
   },
   likes: {
-    type: ObjectId,
+    type: [ObjectId],
     required: true,
     default: [],
   },
