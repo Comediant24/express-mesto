@@ -1,6 +1,5 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const path = require('path');
 const cards = require('./routes/cards');
 const users = require('./routes/users');
 const bodyParser = require('body-parser');
