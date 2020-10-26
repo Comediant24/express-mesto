@@ -11,7 +11,7 @@ const getUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    const user = User.findById({ id: req.params.id });
+    const user = await User.findById({ id: req.params.id });
     if (!user) {
       return res.status(404).send({ message: 'Нет пользователя с таким id' });
     }
@@ -24,7 +24,7 @@ const getUserById = async (req, res) => {
 const createUser = async (req, res) => {
   const { name, about, avatar } = req.body;
   try {
-    const newUser = User.create({ name, about, avatar });
+    const newUser = await User.create({ name, about, avatar });
     res.status(200).send(newUser);
   } catch (error) {
     res.status(500).send({ message: `Произошла ошибка: ${error}` });
