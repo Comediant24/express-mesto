@@ -11,13 +11,13 @@ const getUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById({ id: req.params.id });
+    const user = await User.findById({ _id: req.params.id });
     if (!user) {
       return res.status(404).send({ message: 'Нет пользователя с таким id' });
     }
     return res.status(200).send(user);
   } catch (error) {
-    res.status(500).send({ message: `Произошла ошибка: ${error}` });
+    res.status(500).send({ message: 'Нет пользователя с таким id' });
   }
 };
 
