@@ -31,4 +31,49 @@ const createUser = async (req, res) => {
   }
 };
 
-module.exports = { getUsers, getUserById, createUser };
+const updateUser = async (req, res) => {
+  const { name, about } = req.body;
+  try {
+    const upUser = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        name,
+        about,
+      },
+      {
+        new: true,
+        runValidators: true,
+        upsert: true,
+      }
+    );
+    res.status(200).send(upUser);
+  } catch (error) {
+    res.status(500).send({ message: `Произошла ошибка: ${error}` });
+  }
+};
+
+const updateUserAvatar = async (req, res) => {
+  const { avatar } = req.body;
+  try {
+    const upUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { avatar },
+      {
+        new: true,
+        runValidators: true,
+        upsert: true,
+      }
+    );
+    res.status(200).send(upUser);
+  } catch (error) {
+    res.status(500).send({ message: `Произошла ошибка: ${error}` });
+  }
+};
+
+module.exports = {
+  getUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  updateUserAvatar,
+};
