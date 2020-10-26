@@ -17,7 +17,10 @@ const getUserById = async (req, res) => {
     }
     return res.status(200).send(user);
   } catch (error) {
-    res.status(500).send({ message: 'Нет пользователя с таким id' });
+    if (error.name === 'CastError') {
+      return res.status(400).send({ message: 'Некорректные данные' });
+    }
+    res.status(500).send({ message: `Произошла ошибка: ${error}` });
   }
 };
 
@@ -27,6 +30,9 @@ const createUser = async (req, res) => {
     const newUser = await User.create({ name, about, avatar });
     res.status(200).send(newUser);
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      return res.status(400).send({ message: 'Некорректные данные' });
+    }
     res.status(500).send({ message: `Произошла ошибка: ${error}` });
   }
 };
@@ -48,6 +54,9 @@ const updateUser = async (req, res) => {
     );
     res.status(200).send(upUser);
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      return res.status(400).send({ message: 'Некорректные данные' });
+    }
     res.status(500).send({ message: `Произошла ошибка: ${error}` });
   }
 };
@@ -66,6 +75,9 @@ const updateUserAvatar = async (req, res) => {
     );
     res.status(200).send(upUser);
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      return res.status(400).send({ message: 'Некорректные данные' });
+    }
     res.status(500).send({ message: `Произошла ошибка: ${error}` });
   }
 };
