@@ -28,4 +28,30 @@ const deleteCard = async (req, res) => {
   }
 };
 
-module.exports = { getCards, createCard, deleteCard };
+const likeCard = async (req, res) => {
+  try {
+    const likedCard = await Card.findByIdAndUpdate(
+      req.params.cardId,
+      { $addToSet: { likes: req.user._id } },
+      { new: true }
+    );
+    res.status(200).send(likedCard);
+  } catch (error) {
+    res.status(500).send({ message: `Произошла ошибка: ${error}` });
+  }
+};
+
+const dislikeCard = async (req, res) => {
+  try {
+    const unlikedCard = await Card.findByIdAndUpdate(
+      req.params.cardId,
+      { $pull: { likes: req.user._id } },
+      { new: true }
+    );
+    res.status(200).send(unlikedCard);
+  } catch (error) {
+    res.status(500).send({ message: `Произошла ошибка: ${error}` });
+  }
+};
+
+module.exports = { getCards, createCard, deleteCard, likeCard, dislikeCard };
