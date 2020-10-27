@@ -13,12 +13,14 @@ const getUserById = async (req, res) => {
   try {
     const user = await User.findById({ _id: req.params.id });
     if (!user) {
-      return res.status(404).send({ message: 'Нет пользователя с таким id' });
+      res.status(404).send({ message: 'Нет пользователя с таким id' });
+      return;
     }
-    return res.status(200).send(user);
+    res.status(200).send(user);
   } catch (error) {
     if (error.name === 'CastError') {
-      return res.status(400).send({ message: 'Некорректные данные' });
+      res.status(400).send({ message: 'Некорректные данные' });
+      return;
     }
     res.status(500).send({ message: `Произошла ошибка: ${error}` });
   }
@@ -31,7 +33,8 @@ const createUser = async (req, res) => {
     res.status(200).send(newUser);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      return res.status(400).send({ message: 'Некорректные данные' });
+      res.status(400).send({ message: 'Некорректные данные' });
+      return;
     }
     res.status(500).send({ message: `Произошла ошибка: ${error}` });
   }
@@ -50,12 +53,13 @@ const updateUser = async (req, res) => {
         new: true,
         runValidators: true,
         upsert: true,
-      }
+      },
     );
     res.status(200).send(upUser);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      return res.status(400).send({ message: 'Некорректные данные' });
+      res.status(400).send({ message: 'Некорректные данные' });
+      return;
     }
     res.status(500).send({ message: `Произошла ошибка: ${error}` });
   }
@@ -71,12 +75,13 @@ const updateUserAvatar = async (req, res) => {
         new: true,
         runValidators: true,
         upsert: true,
-      }
+      },
     );
     res.status(200).send(upUser);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      return res.status(400).send({ message: 'Некорректные данные' });
+      res.status(400).send({ message: 'Некорректные данные' });
+      return;
     }
     res.status(500).send({ message: `Произошла ошибка: ${error}` });
   }

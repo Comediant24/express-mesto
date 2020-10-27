@@ -1,4 +1,4 @@
-const Card = require('../models/Card');
+const Card = require('../models/card');
 
 const getCards = async (req, res) => {
   try {
@@ -16,7 +16,8 @@ const createCard = async (req, res) => {
     res.status(200).send(newCard);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      return res.status(400).send({ message: 'Некорректные данные' });
+      res.status(400).send({ message: 'Некорректные данные' });
+      return;
     }
     res.status(500).send({ message: `Произошла ошибка: ${error}` });
   }
@@ -26,12 +27,14 @@ const deleteCard = async (req, res) => {
   try {
     const delCard = await Card.findByIdAndRemove({ _id: req.params.cardId });
     if (!delCard) {
-      return res.status(404).send({ message: 'Такой карточки не существует!' });
+      res.status(404).send({ message: 'Такой карточки не существует!' });
+      return;
     }
     res.status(200).send({ message: `Карточка удалена ${delCard}` });
   } catch (error) {
     if (error.name === 'CastError') {
-      return res.status(400).send({ message: 'Некорректные данные' });
+      res.status(400).send({ message: 'Некорректные данные' });
+      return;
     }
     res.status(500).send({ message: `Произошла ошибка: ${error}` });
   }
@@ -42,12 +45,13 @@ const likeCard = async (req, res) => {
     const likedCard = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     );
     res.status(200).send(likedCard);
   } catch (error) {
     if (error.name === 'CastError') {
-      return res.status(400).send({ message: 'Некорректные данные' });
+      res.status(400).send({ message: 'Некорректные данные' });
+      return;
     }
     res.status(500).send({ message: `Произошла ошибка: ${error}` });
   }
@@ -58,15 +62,22 @@ const dislikeCard = async (req, res) => {
     const unlikedCard = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $pull: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     );
     res.status(200).send(unlikedCard);
   } catch (error) {
     if (error.name === 'CastError') {
-      return res.status(400).send({ message: 'Некорректные данные' });
+      res.status(400).send({ message: 'Некорректные данные' });
+      return;
     }
     res.status(500).send({ message: `Произошла ошибка: ${error}` });
   }
 };
 
-module.exports = { getCards, createCard, deleteCard, likeCard, dislikeCard };
+module.exports = {
+  getCards,
+  createCard,
+  deleteCard,
+  likeCard,
+  dislikeCard,
+};
