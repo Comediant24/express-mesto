@@ -1,3 +1,5 @@
+/* eslint-disable func-names */
+const bcrypt = require('bcryptjs');
 const { Schema, model } = require('mongoose');
 const isEmail = require('validator/lib/isEmail');
 
@@ -41,5 +43,15 @@ const userSchema = new Schema({
     },
   },
 });
+
+userSchema.statics.findUserByCredentials = async function (email, password) {
+  try {
+    const user = await this.findOne({ email });
+    await bcrypt.compare(password, user.password);
+    return user;
+  } catch (error) {
+    return new Error('Неправильные почта или пароль');
+  }
+};
 
 module.exports = model('user', userSchema);
