@@ -107,9 +107,9 @@ const loginUser = async (req, res) => {
   try {
     const user = await User.findUserByCredentials(email, password);
     const token = await jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-    res.status(200).cookie('token', token).send({ user });
+    res.status(200).cookie('token', token).send({ name: user.name, email: user.email });
   } catch (error) {
-    res.status(401).send({ error });
+    res.status(401).send({ message: error.message });
   }
 };
 

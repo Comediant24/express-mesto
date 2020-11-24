@@ -45,13 +45,10 @@ const userSchema = new Schema({
 });
 
 userSchema.statics.findUserByCredentials = async function (email, password) {
-  try {
-    const user = await this.findOne({ email });
-    await bcrypt.compare(password, user.password);
-    return user;
-  } catch (error) {
-    return new Error('Неправильные почта или пароль');
-  }
+  const user = await this.findOne({ email });
+  const ret = await bcrypt.compare(password, user.password);
+  if (!user || !ret) return Promise.reject(new Error('Неправильные почта или пароль'));
+  return user;
 };
 
 module.exports = model('user', userSchema);
