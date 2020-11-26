@@ -11,6 +11,23 @@ const getUsers = async (req, res) => {
   }
 };
 
+const getUserMe = async (req, res) => {
+  try {
+    const user = await User.findById({ _id: req.user._id });
+    if (!user) {
+      res.status(404).send({ message: 'Нет пользователя с таким id' });
+      return;
+    }
+    res.status(200).send(user);
+  } catch (error) {
+    if (error.name === 'CastError') {
+      res.status(400).send({ message: 'Некорректные данные' });
+      return;
+    }
+    res.status(500).send({ message: `Произошла ошибка: ${error}` });
+  }
+};
+
 const getUserById = async (req, res) => {
   try {
     const user = await User.findById({ _id: req.params.id });
@@ -107,7 +124,7 @@ const loginUser = async (req, res) => {
   try {
     const user = await User.findUserByCredentials(email, password);
     const token = await jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-    res.status(200).cookie('token', token).send({ name: user.name, email: user.email });
+    res.status(200).cookie('token', token).send({ token, name: user.name, email: user.email });
   } catch (error) {
     res.status(401).send({ message: error.message });
   }
@@ -115,6 +132,7 @@ const loginUser = async (req, res) => {
 
 module.exports = {
   getUsers,
+  getUserMe,
   getUserById,
   createUser,
   updateUser,
