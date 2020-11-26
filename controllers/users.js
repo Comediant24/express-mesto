@@ -1,51 +1,44 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const ConflictError = require('../errors/conflict-error');
+const NotFoundError = require('../errors/not-found-error');
+const ValidationError = require('../errors/validation-error');
 const User = require('../models/user');
 
-const getUsers = async (req, res) => {
+const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
     res.status(200).send(users);
   } catch (error) {
-    res.status(500).send({ message: `Произошла ошибка: ${error}` });
+    next(error);
   }
 };
 
-const getUserMe = async (req, res) => {
+const getUserMe = async (req, res, next) => {
   try {
     const user = await User.findById({ _id: req.user._id });
     if (!user) {
-      res.status(404).send({ message: 'Нет пользователя с таким id' });
-      return;
+      throw new NotFoundError('Нет пользователя с таким id');
     }
     res.status(200).send(user);
   } catch (error) {
-    if (error.name === 'CastError') {
-      res.status(400).send({ message: 'Некорректные данные' });
-      return;
-    }
-    res.status(500).send({ message: `Произошла ошибка: ${error}` });
+    next(error);
   }
 };
 
-const getUserById = async (req, res) => {
+const getUserById = async (req, res, next) => {
   try {
     const user = await User.findById({ _id: req.params.id });
     if (!user) {
-      res.status(404).send({ message: 'Нет пользователя с таким id' });
-      return;
+      throw new NotFoundError('Нет пользователя с таким id');
     }
     res.status(200).send(user);
   } catch (error) {
-    if (error.name === 'CastError') {
-      res.status(400).send({ message: 'Некорректные данные' });
-      return;
-    }
-    res.status(500).send({ message: `Произошла ошибка: ${error}` });
+    next(error);
   }
 };
 
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -64,15 +57,14 @@ const createUser = async (req, res) => {
       email: newUser.email,
     });
   } catch (error) {
-    if (error.name === 'ValidationError') {
-      res.status(400).send({ message: 'Некорректные данные' });
-      return;
+    if (error.name === 'MongoError') {
+      next(new ConflictError('Пользователь с таким email уже зарегестрирован'));
     }
-    res.status(500).send({ message: `Произошла ошибка: ${error}` });
+    next(error);
   }
 };
 
-const updateUser = async (req, res) => {
+const updateUser = async (req, res, next) => {
   const { name, about } = req.body;
   try {
     const upUser = await User.findByIdAndUpdate(
@@ -90,14 +82,13 @@ const updateUser = async (req, res) => {
     res.status(200).send(upUser);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      res.status(400).send({ message: 'Некорректные данные' });
-      return;
+      next(new ValidationError(error.message.replace('Validation failed: ', '')));
     }
-    res.status(500).send({ message: `Произошла ошибка: ${error}` });
+    next(error);
   }
 };
 
-const updateUserAvatar = async (req, res) => {
+const updateUserAvatar = async (req, res, next) => {
   const { avatar } = req.body;
   try {
     const upUser = await User.findByIdAndUpdate(
@@ -112,21 +103,20 @@ const updateUserAvatar = async (req, res) => {
     res.status(200).send(upUser);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      res.status(400).send({ message: 'Некорректные данные' });
-      return;
+      next(new ValidationError(error.message.replace('Validation failed: ', '')));
     }
-    res.status(500).send({ message: `Произошла ошибка: ${error}` });
+    next(error);
   }
 };
 
-const loginUser = async (req, res) => {
+const loginUser = async (req, res, next) => {
   const { email, password } = req.body;
   try {
     const user = await User.findUserByCredentials(email, password);
     const token = await jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
     res.status(200).cookie('token', token).send({ token, name: user.name, email: user.email });
   } catch (error) {
-    res.status(401).send({ message: error.message });
+    next(error);
   }
 };
 
