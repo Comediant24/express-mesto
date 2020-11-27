@@ -8,6 +8,7 @@ const cards = require('./routes/cards');
 const users = require('./routes/users');
 const auth = require('./middlewares/auth');
 const { createUser, loginUser } = require('./controllers/users');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
 mongoose.connect('mongodb://localhost:27017/mestodb', {
@@ -23,11 +24,15 @@ app.use(bodyParser.json());
 
 const { PORT = 3000 } = process.env;
 
+app.use(requestLogger);
+
 app.post('/signup', createUser);
 app.post('/signin', loginUser);
-
 app.use(auth);
 app.use(cards, users);
+
+app.use(errorLogger);
+
 app.use(errors());
 
 app.use((err, req, res, next) => {
