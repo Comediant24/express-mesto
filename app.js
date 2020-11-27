@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
@@ -25,6 +26,12 @@ app.use(bodyParser.json());
 const { PORT = 3000 } = process.env;
 
 app.use(requestLogger);
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
 app.post('/signup', createUser);
 app.post('/signin', loginUser);
